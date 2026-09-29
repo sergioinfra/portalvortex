@@ -1,0 +1,893 @@
+<div class="main-container p-2">
+  <h2 #scrollMe>Cálculadora de danos (recebidos) - Tibia</h2>
+  <small style="font-size: .75rem; line-height: normal;">
+    Este sistema busca te ajudar a encontrar a melhor combinação de itens para aumentar/aprimorar a sua defesa de danos
+    na hunt<br />
+    Para isto você deve (após finalizar a hunt) informar no Damage input o dano recebido, e preencher as colunas de
+    sua proteção atual (lembrando que deve ser a proteção real constante no inspect combat status do personagem)<br />
+    Após isto, você pode ir modificando os seus itens para novas combinações de proteção, e preencher na sugestão, assim
+    o sistema irá te mostrar o impacto positivo ou negativo da mudança
+  </small>
+  <hr>
+
+  <div>
+    <!-- Painel de dados -->
+    <div class="row">
+      <div class="form-group col-12 col-md-6 col-lg-4 mb-4">
+        <div class="d-flex justify-content-between">
+          <label class="control-label" for="damage">Damage input</label>
+          <button class="btn btn-sm p-0 px-1 mb-1" style="font-size: .8rem;" (click)="resertar()">Resetar</button>
+        </div>
+
+        <textarea class="form-control h-100" style="font-size: .75rem" id="damage" rows="10" [(ngModel)]="damageInput"
+          (ngModelChange)="calcular()"></textarea>
+      </div>
+
+      <div class="form-group col-12 col-md-6 col-lg-4">
+        <div class="painel pb-3">
+          <label class="control-label" for="damage">Proteção atual</label>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Physical</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Physical" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Fire</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Fire" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Earth</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Earth" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Energy</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Energy" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Ice</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Ice" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Holy</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Holy" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Death</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_Death" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Life Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_LifeDrain" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Mana Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoAtual_ManaDrain" (ngModelChange)="calcular()">
+          </div>
+          <br />
+        </div>
+      </div>
+
+      <div class="form-group col-12 col-md-6 col-lg-4">
+        <div class="painel pb-3">
+          <label class="control-label" for="damage">Dano real (recebido sem proteções)</label>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Physical</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Physical">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Physical">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Fire</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Fire">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Fire">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Earth</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Earth">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Earth">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Energy</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Energy">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Energy">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Ice</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Ice">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Ice">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Holy</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Holy">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Holy">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Death</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Death">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_Death">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Life Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_LifeDrain">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_LifeDrain">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Mana Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_ManaDrain">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoRealPercentual_ManaDrain">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end text-warning fw-bold">Total</label>
+            <input class="col-4 control text-center text-warning fw-bold" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Total">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <!-- Painel de resultado -->
+    <div class="row">
+      <div class="form-group col-12 col-md-6 col-lg-4 mb-4">
+        <div class="painel pb-3 text-center">
+          <label class="control-label fs-5" for="damage">Resumo</label>
+          <br />
+          <div class="row mt-2 px-1" style="font-size: 0.9rem;">
+            <label class="col-6 control-label text-end">Dano total <br />(recebido)</label>
+            <input class="col-5 control text-center text-danger" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoAtual_Total">
+          </div>
+          <div class="row mt-2 px-1" style="font-size: 0.9rem;">
+            <label class="col-6 control-label text-end">Dano real <br />(sem proteções)</label>
+            <input class="col-5 control text-center text-warning" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoReal_Total">
+          </div>
+          <div class="row mt-2 px-1" style="font-size: 0.9rem;">
+            <label class="col-6 control-label text-end">Dano possível (sugestão)</label>
+            <input class="col-5 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Total"
+              [ngClass]="{'text-success': danoAtual_Total > danoPossivel_Total, 
+              'text-danger': danoAtual_Total < danoPossivel_Total}">
+          </div>
+          <div class="row mt-3 px-1 text-center fs-5">
+            <span *ngIf="danoAtual_Total == danoPossivel_Total">
+              Nenhum alteração foi identificado no dano com a proteção sugerida
+            </span>
+            <span class="text-danger" *ngIf="danoAtual_Total < danoPossivel_Total">
+              Não irá melhorar o dano recebido com a proteção sugerida, irá apanhar mais
+              {{danoPossivelPercentual_Total * -1 | number:'1.2-2':'pt-BR'}}%
+              [{{danoPossivel_Total - danoAtual_Total | number:'1.0-0':'pt-BR'}}]
+            </span>
+            <span class="text-success" *ngIf="danoAtual_Total > danoPossivel_Total">
+              O dano recebido irá melhorar em {{danoPossivelPercentual_Total | number:'1.2-2':'pt-BR'}}%
+              [{{danoAtual_Total - danoPossivel_Total | number:'1.0-0':'pt-BR'}}]
+              com a proteção sugerida
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-group col-12 col-md-6 col-lg-4">
+        <div class="painel pb-3">
+          <label class="control-label" for="damage">
+            Proteção sugestão
+            <small style="font-size: .75rem;"> (modifique os valores)</small>
+          </label>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Physical</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Physical" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Fire</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Fire" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Earth</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Earth" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Energy</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Energy" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Ice</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Ice" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Holy</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Holy" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Death</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_Death" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Life Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_LifeDrain" (ngModelChange)="calcular()">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Mana Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="protecaoSugestao_ManaDrain" (ngModelChange)="calcular()">
+          </div>
+          <br />
+        </div>
+      </div>
+
+      <div class="form-group col-12 col-md-6 col-lg-4">
+        <div class="painel pb-3">
+          <label class="control-label" for="damage">Possível dano
+            <small style="font-size: .75rem;"> (com base na proteção sugestão)</small>
+          </label>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Physical</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Physical">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Physical"
+              [ngClass]="{'text-success': danoAtual_Physical > danoPossivel_Physical, 'text-danger': danoAtual_Physical < danoPossivel_Physical}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Fire</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Fire">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Fire"
+              [ngClass]="{'text-success': danoAtual_Fire > danoPossivel_Fire, 'text-danger': danoAtual_Fire < danoPossivel_Fire}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Earth</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Earth">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Earth"
+              [ngClass]="{'text-success': danoAtual_Earth > danoPossivel_Earth, 'text-danger': danoAtual_Earth < danoPossivel_Earth}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Energy</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Energy">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Energy"
+              [ngClass]="{'text-success': danoAtual_Energy > danoPossivel_Energy, 'text-danger': danoAtual_Energy < danoPossivel_Energy}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Ice</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Ice">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Ice"
+              [ngClass]="{'text-success': danoAtual_Ice > danoPossivel_Ice, 'text-danger': danoAtual_Ice < danoPossivel_Ice}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Holy</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Holy">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Holy"
+              [ngClass]="{'text-success': danoAtual_Holy > danoPossivel_Holy, 'text-danger': danoAtual_Holy < danoPossivel_Holy}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Death</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Death">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_Death"
+              [ngClass]="{'text-success': danoAtual_Death > danoPossivel_Death, 'text-danger': danoAtual_Death < danoPossivel_Death}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Life Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }"
+              [(ngModel)]="danoPossivel_LifeDrain">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_LifeDrain"
+              [ngClass]="{'text-success': danoAtual_LifeDrain > danoPossivel_LifeDrain, 'text-danger': danoAtual_LifeDrain < danoPossivel_LifeDrain}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end">Mana Drain</label>
+            <input class="col-4 control text-center" type="text" currencyMask disabled
+              [options]="{ prefix: '',  thousands: '.', decimal: '', precision: 0 }"
+              [(ngModel)]="danoPossivel_ManaDrain">
+            <input class="col-3 control text-center ms-2" type="text" currencyMask disabled
+              [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 2 }"
+              [(ngModel)]="danoPossivelPercentual_ManaDrain"
+              [ngClass]="{'text-success': danoAtual_ManaDrain > danoPossivel_ManaDrain, 'text-danger': danoAtual_ManaDrain < danoPossivel_ManaDrain}">
+          </div>
+          <div class="row mt-1 px-2" style="font-size: 0.8rem;">
+            <label class="col-4 control-label text-end fw-bold" [ngClass]="{'text-warning': danoAtual_Total == danoPossivel_Total, 
+              'text-success': danoAtual_Total > danoPossivel_Total, 
+              'text-danger': danoAtual_Total < danoPossivel_Total}">Total</label>
+            <input class="col-4 control text-center fw-bold" [ngClass]="{'text-warning': danoAtual_Total == danoPossivel_Total, 
+            'text-success': danoAtual_Total > danoPossivel_Total, 
+            'text-danger': danoAtual_Total < danoPossivel_Total}" type="text" currencyMask disabled
+              [options]="{ prefix: '', thousands: '.', decimal: '', precision: 0 }" [(ngModel)]="danoPossivel_Total">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <!-- Painel de itens -->
+    <div class="row painel m-1 p-3 text-center">
+
+      <label class="control-label fs-5 mb-2">Sistema de sugestão de uso de itens</label>
+
+      <div class="row mb-3">
+        <div class="d-flex justify-content-center gap-2">
+          <button class="btn" [ngClass]="{'selecionado': vocacaoSelecionada == 1}" (click)="definirVocacao(1)">
+            Knight
+          </button>
+          <button class="btn" [ngClass]="{'selecionado': vocacaoSelecionada == 2}" (click)="definirVocacao(2)">
+            Paladin
+          </button>
+          <button class="btn" [ngClass]="{'selecionado': vocacaoSelecionada == 3}" (click)="definirVocacao(3)">
+            Druid
+          </button>
+          <button class="btn" [ngClass]="{'selecionado': vocacaoSelecionada == 4}" (click)="definirVocacao(4)">
+            Sorcerer
+          </button>
+          <button class="btn" [ngClass]="{'selecionado': vocacaoSelecionada == 5}" (click)="definirVocacao(5)">
+            Monk
+          </button>
+        </div>
+      </div>
+
+      <small *ngIf="vocacaoSelecionada">
+        Selecione os itens que tem disponível para utilizar na hunt desejada (conforme damage input aplicado)
+        <br />
+        <small style="font-size: .7rem;">
+          Aqui o foco é listar apenas itens que poderão dar proteções extras, pode ser que o item que você usará na hunt
+          não esteja presente na lista
+          <br />
+          Selecione apenas itens de interesse para a hunt, como por um exemplo um item que não tenha bonus de skills
+          pode
+          não ser bom para a hunt mesmo tendo uma proteção maior
+          <br />
+          Todos os itens armors que contém slots de imbuiments, um deles será sempre dedicado ao life leech e os
+          restantes (caso houver) será aplicado proteções
+          <br />
+          A sugestão não leva em considerações bônus de skills, ML, e outros, e sim apenas proteções, sendo assim, saiba
+          que poderá ser sugerido um item com maior proteção porém que dará menos ou nenhum bônus, portanto, escolha
+          com cautela os itens que deseja utilizar na hunt
+        </small>
+      </small>
+      <hr />
+
+      <ng-container *ngIf="vocacaoSelecionada">
+
+        <!-- Wands -->
+        <div class="form-group col-12 text-center">
+          <label class="control-label fs-6 mb-2 ms-5">
+            <span [ngSwitch]="vocacaoSelecionada">
+              <p *ngSwitchCase="1">
+                Armas
+                <small style="font-size: .7rem;">
+                  (apenas armas que contem alguma proteção, marcar a que for usar apenas se for usar)
+                </small>
+              </p>
+              <p *ngSwitchCase="2">
+                Bows / Crossbows
+                <small style="font-size: .7rem;">
+                  (apenas bows/crossbows que contem alguma proteção, marcar a que for usar apenas se for usar)
+                </small>
+              </p>
+              <p *ngSwitchCase="3">
+                Rods
+                <small style="font-size: .7rem;">
+                  (apenas rods que contem alguma proteção, marcar a que for usar apenas se for usar)
+                </small>
+              </p>
+              <p *ngSwitchDefault>
+                Wands
+                <small style="font-size: .7rem;">
+                  (apenas wands que contem alguma proteção, marcar a que for usar apenas se for usar)
+                </small>
+              </p>
+              <p *ngSwitchCase="5">
+               Fists
+                <small style="font-size: .7rem;">
+                 (apenas fists que contem alguma proteção, marcar a que for usar apenas se for usar)
+  </small>
+</p>
+            </span>
+
+          </label>
+
+          <div class="d-flex flex-row flex-wrap justify-content-center mb-3">
+            <div class="form-check text-start mt-2 me-5">
+              <input class="form-check-input text-right" type="radio" name="hand" id="hand0" style="cursor: pointer;"
+                [(ngModel)]="handSugerido" [value]="undefined" checked>
+              <label class="form-check-label ms-1" for="hand0" style="cursor: pointer;">
+                Nenhuma
+              </label>
+            </div>
+            <div class="form-check text-start mt-2 me-5" *ngFor="let item of hands">
+              <input class="form-check-input text-right" type="radio" name="hand" id="hand{{item.id}}"
+                style="cursor: pointer;" [(ngModel)]="handSugerido" [value]="item">
+              <img [src]="item.url" style="cursor: pointer;" (click)="handSugerido = item">
+              <label class="form-check-label ms-1" for="hand{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <!-- Helmets -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Helmets</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of helmets">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Armors -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Armors</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of armors">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legs -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Legs</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of legs">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boots -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Boots</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of boots">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shields / Spellbooks / Quivers -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">
+            <span [ngSwitch]="vocacaoSelecionada">
+              <p *ngSwitchCase="1">
+                Shields
+              </p>
+              <p *ngSwitchCase="2">
+                Quivers
+              </p>
+              <p *ngSwitchDefault>
+                Spellbooks
+              </p>
+            </span>
+
+          </label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of shields">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amulets -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Amulets</label>
+          <div class="d-flex flex-row flex-wrap gap-2">
+            <div class="form-check text-start mt-2 me-4" *ngFor="let item of amulets" ngbTooltip="{{item.descricao}}">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+            </div>
+          </div>
+        </div>
+
+        <!-- Rings -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Rings</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of rings">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra Slots -->
+        <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+          <label class="control-label fs-6 mb-2 ms-5">Extra Slots</label>
+          <div class="row">
+            <div class="form-check text-start mt-2" *ngFor="let item of extrasSlots">
+              <input class="form-check-input text-right" type="checkbox" [(ngModel)]="item.selecionado"
+                id="check{{item.id}}" style="cursor: pointer;">
+              <img [src]="item.url" style="cursor: pointer;" (click)="item.selecionado = !item.selecionado">
+              <label class="form-check-label ms-1" for="check{{item.id}}" style="cursor: pointer;">
+                {{item.descricao}}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-12 text-center">
+          <label class="control-label fs-6 mb-2 ms-5">Proteção Árvore do Destino (Skill)</label>
+
+          <div class="d-flex flex-row flex-wrap justify-content-center gap-2 mb-3" style="font-size: .8rem;">
+
+            <!-- Árvore Proteção Physical -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao physical" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Physical">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Fire -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao fire" style="cursor: pointer; --icon: 0"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Fire">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Earth -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao earth" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Earth">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Energy -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao energy" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Energy">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Ice -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao ice" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Ice">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Holy -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao holy" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Holy">
+                </div>
+              </div>
+            </div>
+
+            <!-- Árvore Proteção Death -->
+            <div class="d-flex flex-row align-items-center">
+              <span class="icon-protecao death" style="cursor: pointer;"></span>
+              <div class="d-flex flex-column">
+                <div class="form-check text-start mt-2 me-5">
+                  <input class="control text-center" type="text" currencyMask
+                    [options]="{ prefix: '', suffix: ' %', thousands: '.', decimal: ',', precision: 1 }"
+                    [(ngModel)]="protecaoArvore_Death">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <hr />
+        <div class="row">
+          <div class="col mb-2">
+            <button class="btn" (click)="sugerirItens()">
+              <i class="fas fa-spinner fa-spin" *ngIf="calculandoSugestaoDeItens"></i>
+              Sugerir melhores itens
+            </button>
+          </div>
+        </div>
+
+        <div class="row" *ngIf="sugestaoDeItensAplicada">
+
+          <!-- Hand Selecionada -->
+          <div class="form-group col-12 d-flex justify-content-center text-start" *ngIf="handSugerido">
+            <div class="d-flex flex-row align-items-center">
+              <img [src]="handSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{handSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of handSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Helmet Sugerida -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="helmetSugerido">
+              <img [src]="helmetSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{helmetSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of helmetSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Armor Sugerida -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="armorSugerida">
+              <img [src]="armorSugerida.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{armorSugerida.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of armorSugerida.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+                <small class="ms-3 text-warning" style="font-size: 0.8rem;"
+                  *ngFor="let imbui of armorImbuimentSugerido">
+                  {{imbuimentTextCompleto(imbui, 15)}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legs Sugerida -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="legsSugerida">
+              <img [src]="legsSugerida.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{legsSugerida.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of legsSugerida.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boots Sugerida -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="bootsSugerida">
+              <img [src]="bootsSugerida.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{bootsSugerida.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of bootsSugerida.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shield / Spellbook / Quiver Sugerido -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="shieldSugerido">
+              <img [src]="shieldSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{shieldSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of shieldSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+                <small class="ms-3 text-warning" style="font-size: 0.8rem;"
+                  *ngFor="let imbui of shieldImbuimentSugerido">
+                  {{imbuimentTextCompleto(imbui, 15)}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Amulet Sugerido -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="amuletSugerido">
+              <img [src]="amuletSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{amuletSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of amuletSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ring Sugerido -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="ringSugerido">
+              <img [src]="ringSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{ringSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of ringSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extra Slot Sugerido -->
+          <div class="form-group col-12 col-md-4 col-lg-3 mb-4 text-start">
+            <label class="control-label fs-6 mb-2 ms-5"></label>
+            <div class="d-flex flex-row align-items-center" *ngIf="extraSlotSugerido">
+              <img [src]="extraSlotSugerido.url">
+              <div class="d-flex flex-column ms-1">
+                <label class="control-label" style="cursor: pointer;">
+                  {{extraSlotSugerido.descricao}}
+                </label>
+                <small class="ms-3" style="font-size: 0.8rem;" *ngFor="let protecao of extraSlotSugerido.protecoes"
+                  [ngClass]="{'text-success': protecao.percentual > 0, 'text-danger': protecao.percentual < 0}">
+                  {{protecao.protecaoTextCompleto()}}
+                </small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </ng-container>
+
+    </div>
+
+  </div>
+
+  <small style="font-size: .7rem;">
+    Para sugestões de mudanças, ou correções, contato via e-mail: contato.zetibinha2023@gmail.com
+  </small>
+</div>

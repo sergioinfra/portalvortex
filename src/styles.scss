@@ -1,0 +1,107 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+
+body {
+  background-image: url("./assets/background.webp");
+  color: #d3d3d3;
+  font-family: monospace;
+}
+
+.text-success {
+  color: lime !important;
+}
+
+.form-control {
+  box-sizing: border-box !important;
+  color: #fff !important;
+  background-image: url("./assets/input-text.webp") !important;
+  border: 1px inset #767676 !important;
+  border-color: #2d2d2d #767676 #767676 #2d2d2d !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  padding: 0.25rem !important;
+}
+
+.control {
+  box-sizing: border-box !important;
+  color: #fff;
+  background-image: url("./assets/input-text.webp") !important;
+  border: 1px inset #767676 !important;
+  border-color: #2d2d2d #767676 #767676 #2d2d2d !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  padding: 0.25rem !important;
+}
+
+.btn {
+  cursor: default !important;
+  color: #d3d3d3 !important;
+  border: 1px solid !important;
+  border-image: url("./assets/button.webp") 1 fill !important;
+
+  &:active {
+    border-image: url("./assets/button-pressed.webp") 1 fill !important;
+  }
+
+  &.selecionado {
+    border-image: url("./assets/button-pressed.webp") 1 fill !important;
+  }
+}
+
+.painel {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 18px 4px 4px;
+  border-image: url("./assets/painel.webp") 15 4 4 repeat;
+  padding: 0.5rem;
+}
+
+input {
+  line-height: 10px;
+}
+
+.icon-protecao {
+  background-image: url("./assets/icons-wheel-new.png");
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: inline-block;
+
+  &.physical {
+    --icon: 0;
+    background-position-x: 0;
+  }
+
+  &.holy {
+    --icon: 1;
+    background-position-x: calc(1*32px*-1);
+  }
+
+  &.death {
+    --icon: 2;
+    background-position-x: calc(2*32px*-1);
+  }
+
+  &.fire {
+    --icon: 3;
+    background-position-x: calc(3*32px*-1);
+  }
+
+  &.earth {
+    --icon: 4;
+    background-position-x: calc(4*32px*-1);
+  }
+
+  &.ice {
+    --icon: 5;
+    background-position-x: calc(5*32px*-1);
+  }
+
+  &.energy {
+    --icon: 6;
+    background-position-x: calc(6*32px*-1);
+  }
+}
