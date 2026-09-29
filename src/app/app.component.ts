@@ -13,6 +13,6 @@ export class AppComponent {
       { name: 'description', content: 'Encontre a melhor combinação de itens para melhorar a proteção na sua hunt no Tibia, utilizando a calculadora de danos recebidos.' },
       { name: 'keywords', content: 'Tibia, Calculadora de Danos, Danos Recebidos, Damage Input' },
     ])
-    this.title.setTitle("Portal Ze Tibinha");
+    this.title.setTitle("Portal Vortex");
   }
 }
