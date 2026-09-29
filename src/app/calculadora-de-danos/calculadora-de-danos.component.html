@@ -381,6 +381,7 @@
 
     <!-- Painel de itens -->
     <div class="row painel m-1 p-3 text-center">
+    
 
       <label class="control-label fs-5 mb-2">Sistema de sugestão de uso de itens</label>
 
@@ -402,6 +403,15 @@
             Monk
           </button>
         </div>
+        <div class="col-12 text-center mt-3 mb-3">
+  <button class="btn me-2" (click)="selecionarTodosItens(true)">
+    Selecionar todos
+  </button>
+
+  <button class="btn" (click)="selecionarTodosItens(false)">
+    Desmarcar todos
+  </button>
+</div>
       </div>
 
       <small *ngIf="vocacaoSelecionada">

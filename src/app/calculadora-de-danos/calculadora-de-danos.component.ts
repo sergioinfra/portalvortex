@@ -784,4 +784,9 @@ export class CalculadoraDeDanosComponent implements OnInit, AfterViewInit {
     this.limparSugestoes();
     this.calcular();
   }
+  
+  selecionarTodosItens(selecionar: boolean) {
+  this.itens.forEach(item => item.selecionado = selecionar);
+  
+  }
 }
